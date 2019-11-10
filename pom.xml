@@ -25,13 +25,13 @@
   <parent>
     <groupId>org.rapidpm</groupId>
     <artifactId>rapidpm-dependencies</artifactId>
-    <version>4.0.0</version>
+    <version>04.00.17-RPM</version>
   </parent>
 
 
   <groupId>org.rapidpm.vaadin</groupId>
-  <artifactId>nano-vaadin-v08</artifactId>
-  <version>0.1.0</version>
+  <artifactId>nano-vaadin-undertow-v08</artifactId>
+  <version>0.2.0</version>
 
   <packaging>jar</packaging>
 
@@ -79,24 +79,33 @@
 
   <properties>
     <!--technical-->
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>10</maven.compiler.source>
-    <maven.compiler.target>10</maven.compiler.target>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
 
-    <!--RapidPM-->
-    <rapidpm-functional-reactive.version>0.7.0</rapidpm-functional-reactive.version>
-    <rapidpm-dependencies.version>4.0.0</rapidpm-dependencies.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <!--Vaadin-->
-    <vaadin.version>8.4.4</vaadin.version>
+    <vaadin.version>8.7.2</vaadin.version>
 
-    <undertow.version>2.0.9.Final</undertow.version>
+    <undertow.version>2.0.20.Final</undertow.version>
 
     <!--logging-->
     <slf4j.version>1.7.25</slf4j.version>
     <log4j-api.version>2.8.1</log4j-api.version>
   </properties>
 
+  <!-- Just to disable any accidental deployment to maven.central -->
+  <distributionManagement>
+    <repository>
+      <id>localhost</id>
+      <url>file://${basedir}/target/repo/</url>
+    </repository>
+    <snapshotRepository>
+      <id>localhost</id>
+      <url>file://${basedir}/target/snapshot-repo/</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <dependencyManagement>
     <dependencies>
@@ -112,17 +121,6 @@
   </dependencyManagement>
 
   <dependencies>
-    <dependency>
-      <groupId>org.rapidpm</groupId>
-      <artifactId>rapidpm-dependencies-core-logger</artifactId>
-      <version>${rapidpm-dependencies.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.rapidpm</groupId>
-      <artifactId>rapidpm-functional-reactive</artifactId>
-      <version>${rapidpm-functional-reactive.version}</version>
-    </dependency>
 
     <!--Infrastructure-->
     <dependency>
@@ -134,6 +132,11 @@
     <dependency>
       <groupId>io.undertow</groupId>
       <artifactId>undertow-servlet</artifactId>
+      <version>${undertow.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.undertow</groupId>
+      <artifactId>undertow-websockets-jsr</artifactId>
       <version>${undertow.version}</version>
     </dependency>
 
@@ -157,4 +160,33 @@
       <artifactId>vaadin-push</artifactId>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <finalName>vaadin-app</finalName>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <Main-Class>org.rapidpm.vaadin.nano.CoreUIKotlinService</Main-Class>
+                  </manifestEntries>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>
